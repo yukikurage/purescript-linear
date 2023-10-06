@@ -3,7 +3,6 @@ module Linear
   , (<*>.)
   , applyL
   , bindL
-  , class Max
   , fin
   , make
   , mapL
@@ -14,52 +13,64 @@ module Linear
 
 import Prelude
 
-import Linear.Internal (type (-.), FunctionL(..), Linear(..))
-
 import Data.Symbol (class IsSymbol)
+import Linear.Internal (type (-.), FunctionL(..), Linear(..))
 import Prim.Row (class Cons, class Nub, class Union)
-import Prim.Int (class Add, class Compare, class ToString)
-import Prim.Ordering (GT, LT)
+import Prim.RowList (RowList)
 
-class Max :: Int -> Int -> Int -> Constraint
-class Max i j k | i j -> k
+-- カインド Unique の値は forall で導入
+foreign import data Unique :: Type
 
-instance Max i i i
-else instance Compare i j LT => Max i j j
-else instance Compare i j GT => Max i j i
+-- 与えられた Row に対して、指定されたラベルが存在するか判定する
+class Available :: Row Type -> Symbol -> Constraint
+class Available r a
 
 run :: forall a b. (a -. b) -> a -> b
 run (FunctionL f) = f
 
-mapL :: forall a b i r. (a -. b) -> Linear i r a -> Linear i r b
+mapL
+  :: forall a b r
+   . (a -. b)
+  -> Linear r a
+  -> Linear r b
 mapL (FunctionL f) (Linear x) = Linear \_ -> (f $ x unit)
 
 infixl 4 mapL as <$>.
 
-applyL :: forall a b i j k r s t. Max i j k => Union r s t => Nub t t => Linear i r (a -. b) -> Linear j s a -> Linear k t b
+applyL
+  :: forall a b r s t
+   . Union r s t
+  => Nub t t
+  => Linear r (a -. b)
+  -> Linear s a
+  -> Linear t b
 applyL (Linear f) (Linear x) = Linear \_ -> case f unit of FunctionL g -> g $ x unit
 
-bindL :: forall a b i j k r s t. Max i j k => Union r s t => Nub t t => Linear i r a -> (a -. Linear j s b) -> Linear k t b
+bindL
+  :: forall a b r s t
+   . Union r s t
+  => Nub t t
+  => Linear r a
+  -> (a -. Linear s b)
+  -> Linear t b
 bindL (Linear x) (FunctionL f) = Linear \_ -> case f $ x unit of Linear g -> g unit
 
 infixl 4 applyL as <*>.
 
 make
-  :: forall i iPlusOne l r s t u a b
+  :: forall l r s t u a b
    . IsSymbol l
-  => Add i 1 iPlusOne
-  => ToString iPlusOne l
   => Cons l Unit () t
   => Cons l Unit r u
-  => Cons l (Linear iPlusOne t a) () s
-  => (Linear iPlusOne t a -> Linear iPlusOne u b)
-  -> Linear i r (a -. b)
+  => Cons l (Linear t a) () s
+  => (Linear t a -> Linear u b)
+  -> Linear r (a -. b)
 make f = Linear \_ -> FunctionL \a -> case f (Linear \_ -> a) of Linear b -> b unit
 
-fin :: forall a. Linear 0 () a -> a
+fin :: forall a. Linear () a -> a
 fin (Linear a) = a unit
 
-pureL :: forall a. a -> Linear 0 () a
+pureL :: forall a. a -> Linear () a
 pureL a = Linear \_ -> a
 
 subL :: Int -. Int -. Int
