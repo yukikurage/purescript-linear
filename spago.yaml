@@ -1,11 +1,12 @@
 package:
   dependencies:
-  - console
-  - effect
-  - maybe
-  - newtype
-  - prelude
-  - record
+    - console
+    - effect
+    - maybe
+    - newtype
+    - prelude
+    - record
+    - type-equality
   name: linear
   test:
     dependencies: []
