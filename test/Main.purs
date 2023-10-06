@@ -16,10 +16,10 @@ main = do
 
 arrayTest :: Ur (Array Int)
 arrayTest = withArray [ 0, 1, 2 ] $ fin $
-  make @"x" \arr -> freeze <$>. (set <$>. pureL 0 <*>. pureL 20 <*>. arr)
+  make \arr -> freeze <$>. (set <$>. pureL 0 <*>. pureL 20 <*>. arr)
 
 test :: Int -. Int -. Int
-test = fin $ make @"x" \x -> make @"y" \y ->
+test = fin $ make \x -> make \y ->
   subL <$>. x <*>. y
 
 -- 次のやつはちゃんとコンパイルエラーになる
