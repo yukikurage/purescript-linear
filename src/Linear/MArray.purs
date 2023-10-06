@@ -1,7 +1,5 @@
 module Linear.MArray where
 
-import Prelude
-
 import Data.Maybe (Maybe(..))
 import Linear.Internal (type (-.))
 import Linear.Tuple (type (/\.), TupleL, (/\.))

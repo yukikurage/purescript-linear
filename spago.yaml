@@ -1,0 +1,16 @@
+package:
+  dependencies:
+  - console
+  - effect
+  - maybe
+  - newtype
+  - prelude
+  - record
+  name: linear
+  test:
+    dependencies: []
+    main: Test.Main
+workspace:
+  extra_packages: {}
+  package_set:
+    registry: 42.2.1
